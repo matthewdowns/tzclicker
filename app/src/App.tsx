@@ -4,7 +4,6 @@ import {
     NetworkType,
     TezosOperationType
 } from '@airgap/beacon-sdk';
-import { Balance } from '@taquito/react-components';
 import {
     TezosToolkit,
     ContractAbstraction,
