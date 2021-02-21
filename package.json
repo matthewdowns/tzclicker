@@ -1,0 +1,15 @@
+{
+    "name": "@matthewdowns/tzclicker",
+    "private": true,
+    "version": "0.1.0",
+    "description": "Tezos smart contract and DApp that registers clicks for a small fee.",
+    "scripts": {
+        
+    },
+    "author": "Matthew Downs <matthew.downsc@gmail.com>",
+    "license": "ISC",
+    "workspaces": [
+        "./app",
+        "./contract"
+    ]
+}
