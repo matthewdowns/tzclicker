@@ -4,7 +4,8 @@
     "version": "0.1.0",
     "description": "Tezos smart contract and DApp that registers clicks for a small fee.",
     "scripts": {
-        
+        "contract:build": "cd ./contract && npm run build",
+        "contract:deploy": "cd ./contract && npm run deploy"
     },
     "author": "Matthew Downs <matthew.downsc@gmail.com>",
     "license": "MIT",

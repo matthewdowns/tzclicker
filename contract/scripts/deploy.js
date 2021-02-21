@@ -3,6 +3,11 @@ const { importKey } = require('@taquito/signer');
 const { readFileSync } = require('fs');
 const { join, resolve } = require('path');
 
+const provider = 'https://testnet-tezos.giganode.io';
+
+const privateKey = process.argv[2];
+if (!privateKey) throw new Error('No private key provided.');
+
 const basePath = resolve(__dirname, '../');
 const buildPath = join(basePath, 'build');
 const michelsonPath = join(buildPath, 'clicker.tz');
@@ -10,9 +15,6 @@ const michelsonStoragePath = join(buildPath, 'clicker.storage.tz');
 
 const michelsonCode = readFileSync(michelsonPath).toString('utf-8');
 const michelsonStorageCode = readFileSync(michelsonStoragePath).toString('utf-8');
-
-const provider = 'https://testnet-tezos.giganode.io';
-const privateKey = '';
 
 async function deploy() {
     const tezos = new TezosToolkit(provider);
