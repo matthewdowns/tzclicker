@@ -1,0 +1,24 @@
+archetype clicker
+
+variable total_clicks : int = 0
+
+asset click identified by addr {
+    addr : address;
+    value : tez
+}
+
+entry add_click () {
+    effect {
+        click.add({
+            addr = caller; 
+            value = transferred
+        });
+        total_clicks += 1;
+    }
+}
+
+specification {
+  contract invariant s1 {
+    true <> false
+  }
+}

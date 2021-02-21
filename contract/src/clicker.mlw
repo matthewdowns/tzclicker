@@ -1,0 +1,179 @@
+module Clicker_storage
+  use archetype.Lib
+  
+  use list.List as L
+  
+  use archetype.Field as F
+  
+  use archetype.View as V
+  
+  type _asset =
+   | AClick
+  
+  type _entry =
+   | EAdd_click
+  
+  type _field =
+   | FTotal_clicks
+   | FAddr
+   | FValue
+  
+  clone archetype.Trace as Tr with type _asset = _asset,
+                                   type _entry = _entry,
+                                   type _field = _field
+  
+  type click = {
+    addr : address;
+    value : tez 
+  }
+  
+  let function eq_click_key (k1 : address) (k2 : address) : bool
+  = str_eq k1 k2
+  
+  let function le_click_key (k1 : address) (k2 : address) : bool
+  = str_le k1 k2
+  
+  let function eq_click (a1 : click) (a2 : click) : bool
+  = (let a1_addr = a1.addr in
+    let a2_addr = a2.addr in
+    str_eq a1_addr a2_addr && let a1_value = a1.value in
+    let a2_value = a2.value in
+    a1_value = a2_value)
+  
+  let mk_default_click () : click
+  = {
+      addr = "";
+      value = 0
+    }
+  
+  clone archetype.View as View_click with type tk = address,
+                                          val eqk = eq_click_key
+  
+  clone archetype.Field as Field_click with type tk = address,
+                                            val eqk = eq_click_key,
+                                            val lek = le_click_key,
+                                            type view = View_click.view,
+                                            val vmk = View_click.mk,
+                                            val velts = View_click.elts,
+                                            val vcontains = View_click.contains
+  
+  clone archetype.Collection as Click with type tk = address,
+                                           val eqk = eq_click_key,
+                                           val lek = le_click_key,
+                                           type t = click,
+                                           val keyt = addr,
+                                           val eqt = eq_click,
+                                           type view = View_click.view,
+                                           val vmk = View_click.mk,
+                                           val velts = View_click.elts,
+                                           val vcontains = View_click.contains,
+                                           val vcard = View_click.card,
+                                           type field = Field_click.field,
+                                           val felts = Field_click.elts,
+                                           val fcontains = Field_click.contains
+  
+  type _storage = {
+    mutable total_clicks : int;
+    mutable _click_assets : Click.collection;
+    mutable _click_assets_added : Click.collection;
+    mutable _click_assets_removed : Click.collection;
+    mutable _ops : L.list operation;
+    mutable _balance : tez;
+    _transferred : tez;
+    _caller : address;
+    _source : address;
+    _now : date;
+    _chainid : chain_id;
+    _selfaddress : address;
+    _entry : option _entry;
+    mutable _tr : Tr._traces 
+  } invariant {
+    [@expl:s1]
+    true  
+  } by {
+    total_clicks = 0;
+    _click_assets = Click.from_list (L.Nil);
+    _click_assets_added = Click.empty;
+    _click_assets_removed = Click.empty;
+    _ops = L.Nil;
+    _balance = 0;
+    _transferred = 0;
+    _caller = "";
+    _source = "";
+    _now = 0;
+    _chainid = 0;
+    _selfaddress = "";
+    _entry = None;
+    _tr = L.Nil 
+  }
+  
+  let function _cp_storage (_s_storage : _storage) : _storage
+  ensures {
+    [@expl:cp_1]
+    result = _s_storage  
+  }
+  = {
+      total_clicks = _s_storage.total_clicks;
+      _click_assets = _s_storage._click_assets;
+      _click_assets_added = _s_storage._click_assets_added;
+      _click_assets_removed = _s_storage._click_assets_removed;
+      _ops = _s_storage._ops;
+      _balance = _s_storage._balance;
+      _transferred = _s_storage._transferred;
+      _caller = _s_storage._caller;
+      _source = _s_storage._source;
+      _now = _s_storage._now;
+      _chainid = _s_storage._chainid;
+      _selfaddress = _s_storage._selfaddress;
+      _entry = _s_storage._entry;
+      _tr = _s_storage._tr
+    }
+  
+  val ref _s : _storage
+end
+module Clicker
+  use archetype.Lib
+  
+  use list.List as L
+  
+  use Clicker_storage
+  
+  let add_click () : unit
+  raises { KeyExist }
+  requires {
+    [@expl:entry_require]
+    _s._entry = (Some EAdd_click) 
+  }
+  requires {
+   [@expl:empty_ops]
+   _s._ops = L.Nil 
+  }
+  requires {
+   [@expl:empty_trace]
+   _s._tr = L.Nil 
+  }
+  requires {
+   [@expl:require_click_added_isempty]
+   Click.is_empty _s._click_assets_added 
+  }
+  requires {
+   [@expl:click_removed_isempty]
+   Click.is_empty _s._click_assets_removed  
+  }
+  = let _s_init = _cp_storage _s in
+    match Click.get (_s._caller) _s._click_assets with
+    | Some _ -> _s <- _cp_storage _s_init;
+                raise KeyExist
+    | _ -> _s._click_assets <- Click.add ({
+             addr = _s._caller;
+             value = _s._transferred
+           }) _s._click_assets;
+           _s._click_assets_added <- Click.add ({
+             addr = _s._caller;
+             value = _s._transferred
+           }) _s._click_assets_added 
+    end;
+    _s._tr <- L.Cons (Tr.TrAdd_ AClick) _s._tr;
+    _s.total_clicks <- _s.total_clicks + 1
+end
+
