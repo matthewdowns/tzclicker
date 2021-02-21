@@ -7,7 +7,7 @@
         
     },
     "author": "Matthew Downs <matthew.downsc@gmail.com>",
-    "license": "ISC",
+    "license": "MIT",
     "workspaces": [
         "./app",
         "./contract"
