@@ -1,17 +1,20 @@
 {
   "name": "contract",
-  "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "private": true,
+  "version": "0.1.0",
+  "description": "Simple Tezos smart contract and DApp that records clicks.",
   "scripts": {
-    "deploy": "node ./scripts/deploy.js",
-    "addClick": "node ./scripts/addClick.js"
+    "build": "node ./scripts/build.js",
+    "deploy": "node ./scripts/deploy.js"
   },
   "keywords": [],
-  "author": "",
-  "license": "ISC",
+  "author": "Matthew Downs <matthew.downsc@gmail.com>",
+  "license": "MIT",
   "dependencies": {
     "@taquito/signer": "^8.0.3-beta.0",
     "@taquito/taquito": "^8.0.3-beta.0"
+  },
+  "devDependencies": {
+    "rimraf": "^3.0.2"
   }
 }
