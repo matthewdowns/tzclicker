@@ -4,7 +4,7 @@
   "version": "0.1.0",
   "description": "Simple Tezos smart contract and DApp that records clicks.",
   "scripts": {
-    "build": "node ./scripts/build.js",
+    "build": "node ./scripts/build.js ./src/clicker.arl",
     "deploy": "node ./scripts/deploy.js"
   },
   "keywords": [],
